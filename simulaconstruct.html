@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="fr-BE">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SimulaConstruct — Divisez votre temps de devis par 4</title>
+<meta name="description" content="SimulaConstruct : le simulateur QR pour artisans couvreurs en Wallonie. Calcule les primes 2026 automatiquement. Leads qualifiés uniquement.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root {
+    --navy: #0A2342;
+    --royal: #2C5F9E;
+    --green: #00A86B;
+    --green-dark: #00915d;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    background: #ffffff;
+    color: var(--navy);
+    margin: 0;
+  }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+  .wrap-sm { max-width: 860px; margin: 0 auto; padding: 0 20px; }
+
+  /* --- Buttons --- */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700; border-radius: 14px; text-decoration: none; transition: transform 0.15s, opacity 0.15s; cursor: pointer; border: none; font-family: inherit; }
+  .btn:hover { transform: translateY(-1px); }
+  .btn-green { background: var(--green); color: #fff; box-shadow: 0 6px 20px rgba(0,168,107,0.28); }
+  .btn-green:hover { background: var(--green-dark); }
+  .btn-navy { background: var(--navy); color: #fff; }
+  .btn-navy:hover { background: #0d2e56; }
+  .btn-outline { background: #fff; color: var(--navy); border: 1.5px solid #d1d5db; }
+  .btn-outline:hover { background: #f9fafb; }
+  .btn-lg { height: 54px; padding: 0 32px; font-size: 16px; }
+  .btn-md { height: 44px; padding: 0 22px; font-size: 15px; }
+  .btn-sm { height: 38px; padding: 0 16px; font-size: 14px; }
+
+  /* --- Video --- */
+  .video-ratio { position: relative; width: 100%; aspect-ratio: 16/9; border-radius: 16px; overflow: hidden; background: #000; box-shadow: 0 16px 40px rgba(0,0,0,0.14); }
+  .video-ratio iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+  /* --- Cards --- */
+  .card { background: #fff; border-radius: 20px; border: 1px solid #e8edf5; box-shadow: 0 4px 24px rgba(10,35,66,0.07); }
+  .card-video { background: #fff; border-radius: 20px; padding: 20px; border: 1px solid #e8edf5; box-shadow: 0 4px 20px rgba(10,35,66,0.07); }
+  .card-video h3 { margin: 0 0 12px; font-size: 15px; font-weight: 700; color: var(--navy); }
+
+  /* --- Badge --- */
+  .badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 99px; font-size: 11px; font-weight: 600; letter-spacing: 0.3px; }
+
+  /* --- Stat pill --- */
+  .stat-pill { background: #f8fafc; border-radius: 14px; padding: 16px 10px; text-align: center; }
+  .stat-pill .icon { font-size: 20px; margin-bottom: 6px; }
+  .stat-pill .val { font-size: 14px; font-weight: 700; color: var(--navy); }
+  .stat-pill .sub { font-size: 12px; color: #6b7280; margin-top: 2px; }
+
+  /* --- Section spacing --- */
+  .section { padding: 80px 0; }
+  .section-sm { padding: 56px 0; }
+
+  /* --- Pulse dot --- */
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+  .pulse-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); display: inline-block; animation: pulse 2s infinite; }
+
+  /* --- Step number --- */
+  .step-num { width: 52px; height: 52px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; flex-shrink: 0; }
+
+  /* --- Compare lists --- */
+  .compare-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+  .compare-list li { display: flex; gap: 12px; font-size: 15px; color: #374151; line-height: 1.55; }
+  .compare-list .ico { flex-shrink: 0; font-size: 16px; margin-top: 1px; font-weight: 700; }
+
+  /* --- Grid helpers --- */
+  .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 32px; }
+  .grid-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+
+  /* --- Browser bar --- */
+  .browser-bar { background: #fff; border-radius: 20px; box-shadow: 0 16px 48px rgba(10,35,66,0.12); border: 1px solid #e2e8f0; overflow: hidden; }
+  .browser-dots { padding: 12px 16px 10px; display: flex; align-items: center; gap: 6px; border-bottom: 1px solid #f0f4f8; }
+  .browser-dots span { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+  .browser-url { margin-left: 10px; font-size: 12px; color: #9ca3af; font-family: monospace; }
+
+  /* Phone mockup */
+  .phone-outer { width: 295px; height: 600px; background: var(--navy); border-radius: 44px; padding: 10px; box-shadow: 0 32px 80px -16px rgba(10,35,66,0.42); flex-shrink: 0; }
+  .phone-inner { width: 100%; height: 100%; background: #fff; border-radius: 36px; overflow: hidden; }
+  .phone-notch { height: 26px; background: var(--navy); display: flex; align-items: center; justify-content: center; }
+  .phone-notch-bar { width: 68px; height: 5px; background: rgba(0,0,0,0.22); border-radius: 3px; }
+  .phone-body { padding: 12px 10px; }
+
+  @media (max-width: 720px) {
+    .phone-outer { display: none; }
+    .hero-grid { justify-content: center; }
+    .grid-stats { grid-template-columns: repeat(3, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── BANDEAU ── -->
+<div style="background:var(--navy); color:#fff; font-size:12px; padding:9px 16px; text-align:center;">
+  <span style="display:inline-flex; align-items:center; gap:8px;">
+    <span class="pulse-dot"></span>
+    Version officielle — Simulateur non modifié · Démo réelle
+  </span>
+</div>
+
+<!-- ── HEADER ── -->
+<header style="position:sticky; top:0; z-index:50; background:rgba(255,255,255,0.93); backdrop-filter:blur(18px); border-bottom:1px solid #f0f4f8;">
+  <div class="wrap" style="height:68px; display:flex; align-items:center; justify-content:space-between;">
+
+    <!-- LOGO -->
+    <a href="#" style="text-decoration:none; display:flex; align-items:center; gap:11px;">
+      <!-- Icône SVG inline -->
+      <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="40" height="40" rx="10" fill="#0A2342"/>
+        <polygon points="20,5 36,19 4,19" fill="#00A86B"/>
+        <rect x="7" y="19" width="26" height="17" rx="1" fill="white" opacity="0.93"/>
+        <!-- QR mini -->
+        <rect x="10" y="22" width="5" height="5" rx="0.8" fill="#0A2342"/>
+        <rect x="11" y="23" width="3" height="3" fill="white"/>
+        <rect x="11.5" y="23.5" width="2" height="2" fill="#0A2342"/>
+        <rect x="25" y="22" width="5" height="5" rx="0.8" fill="#0A2342"/>
+        <rect x="26" y="23" width="3" height="3" fill="white"/>
+        <rect x="26.5" y="23.5" width="2" height="2" fill="#0A2342"/>
+        <rect x="10" y="29" width="5" height="5" rx="0.8" fill="#0A2342"/>
+        <rect x="11" y="30" width="3" height="3" fill="white"/>
+        <rect x="11.5" y="30.5" width="2" height="2" fill="#0A2342"/>
+        <rect x="17" y="22" width="2" height="2" fill="#0A2342"/>
+        <rect x="20" y="22" width="2" height="2" fill="#0A2342"/>
+        <rect x="17" y="25" width="3" height="2" fill="#0A2342"/>
+        <rect x="21" y="25" width="2" height="2" fill="#0A2342"/>
+        <rect x="17" y="28" width="2" height="2" fill="#0A2342"/>
+        <rect x="20" y="28" width="5" height="2" fill="#0A2342"/>
+        <rect x="17" y="31" width="3" height="3" fill="#0A2342"/>
+        <rect x="21" y="31" width="2" height="2" fill="#0A2342"/>
+        <rect x="24" y="29" width="6" height="2" fill="#0A2342"/>
+        <rect x="24" y="32" width="3" height="2" fill="#0A2342"/>
+        <rect x="28" y="32" width="2" height="2" fill="#0A2342"/>
+      </svg>
+      <span style="font-size:19px; font-weight:900; color:var(--navy); letter-spacing:-0.5px; line-height:1;">
+        Simula<span style="color:var(--royal);">Construct</span>
+      </span>
+    </a>
+
+    <div style="display:flex; align-items:center; gap:12px;">
+      <a href="#tarifs" style="font-size:14px; font-weight:500; color:var(--royal); text-decoration:none;">Tarifs</a>
+      <a href="#contact" class="btn btn-green btn-sm">Obtenir le mien</a>
+    </div>
+  </div>
+</header>
+
+<!-- ══════════════ HERO ══════════════ -->
+<section style="background:linear-gradient(180deg,#f8fafc 0%,#fff 100%); padding:64px 0 80px;">
+  <div class="wrap">
+    <div class="hero-grid" style="display:flex; align-items:center; gap:56px; flex-wrap:wrap;">
+
+      <!-- Texte -->
+      <div style="flex:1; min-width:280px; max-width:600px;">
+        <div class="badge" style="background:rgba(10,35,66,0.06); color:var(--navy); margin-bottom:22px;">
+          <span style="background:var(--green); color:#fff; padding:2px 8px; border-radius:5px; font-size:10px; font-weight:800;">WALLONIE 2026</span>
+          Primes officielles intégrées
+        </div>
+
+        <h1 style="font-size:clamp(30px,5vw,54px); font-weight:900; line-height:1.05; letter-spacing:-1.2px; margin:0 0 20px;">
+          Artisans : <span style="color:var(--royal);">divisez votre temps</span> de devis par 4.
+        </h1>
+
+        <p style="font-size:17px; color:#4b5563; line-height:1.75; margin:0 0 32px; max-width:500px;">
+          Le simulateur QR qui <strong>calcule les primes Wallonie 2026 automatiquement</strong> et envoie uniquement des leads qualifiés. Fini les touristes.
+        </p>
+
+        <div style="display:flex; flex-wrap:wrap; gap:12px; margin-bottom:28px;">
+          <a href="#videos" class="btn btn-navy btn-lg">Voir les démos vidéo ↓</a>
+          <a href="#comment" class="btn btn-outline btn-lg">Comment ça marche</a>
+        </div>
+
+        <div style="display:flex; flex-wrap:wrap; gap:18px; font-size:14px; color:#6b7280;">
+          <span style="display:flex; align-items:center; gap:6px;">
+            <svg width="17" height="17" fill="var(--green)" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+            Pas d'abonnement
+          </span>
+          <span style="display:flex; align-items:center; gap:6px;">
+            <svg width="17" height="17" fill="var(--green)" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+            Livré en 48h
+          </span>
+          <span style="display:flex; align-items:center; gap:6px;">
+            <svg width="17" height="17" fill="var(--green)" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+            Vous êtes propriétaire
+          </span>
+        </div>
+      </div>
+
+      <!-- Phone mockup -->
+      <div style="flex-shrink:0; position:relative; display:flex; justify-content:center;">
+        <div style="position:absolute; inset:-40px; background:radial-gradient(circle, rgba(44,95,158,0.13) 0%, rgba(0,168,107,0.1) 60%, transparent 100%); border-radius:50%; pointer-events:none;"></div>
+        <div class="phone-outer">
+          <div class="phone-inner">
+            <div class="phone-notch"><div class="phone-notch-bar"></div></div>
+            <div class="phone-body">
+              <!-- Header simulateur -->
+              <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
+                <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
+                  <rect width="40" height="40" rx="10" fill="#0A2342"/>
+                  <polygon points="20,5 36,19 4,19" fill="#00A86B"/>
+                  <rect x="7" y="19" width="26" height="17" rx="1" fill="white" opacity="0.93"/>
+                </svg>
+                <div>
+                  <div style="font-size:11px; font-weight:800; color:var(--navy); line-height:1.2;">SIMULACONSTRUCT</div>
+                  <div style="font-size:9px; color:#6b7280;">Couvreur agréé Wallonie</div>
+                </div>
+              </div>
+
+              <!-- Banner -->
+              <div style="background:linear-gradient(135deg,var(--navy),var(--royal)); border-radius:14px; padding:14px; color:#fff; margin-bottom:12px;">
+                <div style="height:10px; width:80%; background:rgba(255,255,255,0.85); border-radius:4px; margin-bottom:5px;"></div>
+                <div style="height:7px; width:65%; background:rgba(255,255,255,0.5); border-radius:4px;"></div>
+                <div style="margin-top:10px; display:inline-flex; align-items:center; gap:5px; font-size:9px; background:rgba(255,255,255,0.15); padding:3px 8px; border-radius:99px; border:1px solid rgba(255,255,255,0.2);">
+                  <span class="pulse-dot" style="width:5px;height:5px;"></span>
+                  Barème SPW 2026
+                </div>
+              </div>
+
+              <!-- Champs -->
+              <div style="display:flex; flex-direction:column; gap:8px;">
+                <div style="height:36px; background:#f1f5f9; border-radius:10px;"></div>
+                <div style="height:36px; background:#f1f5f9; border-radius:10px;"></div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                  <div style="height:36px; background:#f1f5f9; border-radius:10px;"></div>
+                  <div style="height:36px; background:#f1f5f9; border-radius:10px;"></div>
+                </div>
+                <div style="height:40px; background:var(--green); border-radius:10px; margin-top:2px;"></div>
+              </div>
+
+              <!-- Stats -->
+              <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; margin-top:12px;">
+                <div style="background:#f8fafc; border-radius:10px; padding:8px; text-align:center;">
+                  <div style="font-size:15px;">⚡</div>
+                  <div style="font-size:8px; font-weight:700; color:var(--navy);">2 min</div>
+                </div>
+                <div style="background:#ecfdf5; border-radius:10px; padding:8px; text-align:center;">
+                  <div style="font-size:15px;">💶</div>
+                  <div style="font-size:8px; font-weight:700; color:#059669;">Primes</div>
+                </div>
+                <div style="background:#f8fafc; border-radius:10px; padding:8px; text-align:center;">
+                  <div style="font-size:15px;">📱</div>
+                  <div style="font-size:8px; font-weight:700; color:var(--navy);">WhatsApp</div>
+                </div>
+              </div>
+
+              <!-- QR code zone -->
+              <div style="margin-top:14px; display:flex; flex-direction:column; align-items:center;">
+                <div style="width:60px; height:60px; border:2.5px solid var(--navy); border-radius:10px; display:flex; align-items:center; justify-content:center; background:#fff;">
+                  <svg width="44" height="44" viewBox="0 0 56 56" fill="none"><rect width="56" height="56" fill="white"/><rect x="2" y="2" width="20" height="20" rx="2" fill="#0A2342"/><rect x="5" y="5" width="14" height="14" rx="1" fill="white"/><rect x="8" y="8" width="8" height="8" fill="#0A2342"/><rect x="34" y="2" width="20" height="20" rx="2" fill="#0A2342"/><rect x="37" y="5" width="14" height="14" rx="1" fill="white"/><rect x="40" y="8" width="8" height="8" fill="#0A2342"/><rect x="2" y="34" width="20" height="20" rx="2" fill="#0A2342"/><rect x="5" y="37" width="14" height="14" rx="1" fill="white"/><rect x="8" y="40" width="8" height="8" fill="#0A2342"/><rect x="26" y="2" width="4" height="4" fill="#0A2342"/><rect x="26" y="8" width="4" height="4" fill="#0A2342"/><rect x="26" y="14" width="4" height="4" fill="#0A2342"/><rect x="2" y="26" width="4" height="4" fill="#0A2342"/><rect x="8" y="26" width="4" height="4" fill="#0A2342"/><rect x="14" y="26" width="4" height="4" fill="#0A2342"/><rect x="26" y="26" width="4" height="4" fill="#0A2342"/><rect x="32" y="26" width="4" height="4" fill="#0A2342"/><rect x="38" y="26" width="4" height="4" fill="#0A2342"/><rect x="44" y="26" width="8" height="4" fill="#0A2342"/><rect x="26" y="32" width="4" height="4" fill="#0A2342"/><rect x="32" y="32" width="4" height="4" fill="#0A2342"/><rect x="38" y="38" width="4" height="4" fill="#0A2342"/><rect x="44" y="32" width="4" height="4" fill="#0A2342"/><rect x="44" y="38" width="4" height="4" fill="#0A2342"/><rect x="50" y="32" width="4" height="4" fill="#0A2342"/><rect x="32" y="44" width="4" height="4" fill="#0A2342"/><rect x="38" y="44" width="4" height="4" fill="#0A2342"/><rect x="44" y="50" width="8" height="4" fill="#00A86B"/><rect x="26" y="44" width="4" height="8" fill="#00A86B"/></svg>
+                </div>
+                <p style="font-size:9px; color:#9ca3af; margin:5px 0 0; text-align:center;">Scannez → simulation instantanée</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ VIDÉOS ══════════════ -->
+<section id="videos" style="background:#f8fafc; padding:56px 0; border-top:1px solid #e8edf5; border-bottom:1px solid #e8edf5;">
+  <div style="max-width:1400px; margin:0 auto; padding:0 20px;">
+    <!-- Vidéo présentation seule, plein cadre -->
+    <div id="video-wrapper" style="position:relative; width:100%; aspect-ratio:16/9; background:#000; border-radius:20px; overflow:hidden; box-shadow:0 20px 60px rgba(10,35,66,0.15);">
+      <video
+        id="video-presentation"
+        src="presentation.mp4"
+        autoplay
+        muted
+        controls
+        playsinline
+        preload="auto"
+        style="width:100%; height:100%; object-fit:contain; display:block; background:#000;"
+       data-sound="off"></video>
+      <button id="btn-sound" style="position:absolute; bottom:16px; right:16px; background:rgba(0,0,0,0.7); color:#fff; border:none; border-radius:8px; padding:8px 12px; font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:6px; backdrop-filter:blur(4px);">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3z"/><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v8.06c1.48-.74 2.5-2.26 2.5-4.03z"/></svg>
+        Activer le son
+      </button>
+    </div>
+  </div>
+
+  <div style="max-width:1000px; margin:48px auto 0; padding:0 20px;">
+    <div style="position:relative; width:100%; aspect-ratio:16/9; background:#000; border-radius:16px; overflow:hidden; box-shadow:0 12px 40px rgba(10,35,66,0.12);">
+      <video
+        id="video-technique"
+        src="technique.mp4"
+        controls
+        playsinline
+        preload="metadata"
+        style="width:100%; height:100%; object-fit:contain; display:block; background:#000;"
+      ></video>
+      <button id="btn-sound" style="position:absolute; bottom:16px; right:16px; background:rgba(0,0,0,0.7); color:#fff; border:none; border-radius:8px; padding:8px 12px; font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:6px; backdrop-filter:blur(4px);">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3z"/><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v8.06c1.48-.74 2.5-2.26 2.5-4.03z"/></svg>
+        Activer le son
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ QR — COMMENT ÇA MARCHE ══════════════ -->
+<section style="padding:80px 0;">
+  <div class="wrap-sm">
+    <div style="text-align:center; margin-bottom:48px;">
+      <h2 style="font-size:clamp(22px,4vw,34px); font-weight:800; letter-spacing:-0.5px; margin:0 0 12px;">Votre QR code, partout où vous travaillez</h2>
+      <p style="color:#6b7280; font-size:16px; max-width:500px; margin:0 auto;">Un seul QR. Collé une fois. Il travaille pour vous 24h/24.</p>
+    </div>
+
+    <!-- Placement QR grid -->
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:16px; margin-bottom:56px;">
+      <div class="card" style="padding:20px; text-align:center;">
+        <div style="font-size:28px; margin-bottom:8px;">🚐</div>
+        <div style="font-weight:700; font-size:14px; color:var(--navy);">Camionnette</div>
+        <div style="font-size:12px; color:#6b7280; margin-top:4px;">Vitres arrière, flancs</div>
+      </div>
+      <div class="card" style="padding:20px; text-align:center;">
+        <div style="font-size:28px; margin-bottom:8px;">🏗️</div>
+        <div style="font-weight:700; font-size:14px; color:var(--navy);">Bâche chantier</div>
+        <div style="font-size:12px; color:#6b7280; margin-top:4px;">Visible du trottoir</div>
+      </div>
+      <div class="card" style="padding:20px; text-align:center;">
+        <div style="font-size:28px; margin-bottom:8px;">📄</div>
+        <div style="font-weight:700; font-size:14px; color:var(--navy);">Flyer / Devis</div>
+        <div style="font-size:12px; color:#6b7280; margin-top:4px;">Laissé chez le client</div>
+      </div>
+      <div class="card" style="padding:20px; text-align:center;">
+        <div style="font-size:28px; margin-bottom:8px;">🌐</div>
+        <div style="font-weight:700; font-size:14px; color:var(--navy);">Facebook / Google</div>
+        <div style="font-size:12px; color:#6b7280; margin-top:4px;">Lien cliquable</div>
+      </div>
+    </div>
+
+    <!-- Flux QR →  Résultat -->
+    <div style="background:var(--navy); border-radius:24px; padding:36px 32px; color:#fff; display:flex; flex-wrap:wrap; align-items:center; gap:32px; justify-content:center;">
+      <!-- QR zone -->
+      <div style="text-align:center;">
+        <div style="width:80px; height:80px; border:3px solid #fff; border-radius:14px; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.06); margin:0 auto 10px;">
+          <svg width="58" height="58" viewBox="0 0 56 56" fill="none"><rect width="56" height="56" fill="none"/><rect x="2" y="2" width="20" height="20" rx="2" fill="white"/><rect x="5" y="5" width="14" height="14" rx="1" fill="#0A2342"/><rect x="8" y="8" width="8" height="8" fill="white"/><rect x="34" y="2" width="20" height="20" rx="2" fill="white"/><rect x="37" y="5" width="14" height="14" rx="1" fill="#0A2342"/><rect x="40" y="8" width="8" height="8" fill="white"/><rect x="2" y="34" width="20" height="20" rx="2" fill="white"/><rect x="5" y="37" width="14" height="14" rx="1" fill="#0A2342"/><rect x="8" y="40" width="8" height="8" fill="white"/><rect x="26" y="2" width="4" height="4" fill="white"/><rect x="26" y="8" width="4" height="4" fill="white"/><rect x="26" y="14" width="4" height="4" fill="white"/><rect x="2" y="26" width="4" height="4" fill="white"/><rect x="8" y="26" width="4" height="4" fill="white"/><rect x="14" y="26" width="4" height="4" fill="white"/><rect x="26" y="26" width="4" height="4" fill="white"/><rect x="32" y="26" width="4" height="4" fill="white"/><rect x="38" y="26" width="4" height="4" fill="white"/><rect x="44" y="26" width="8" height="4" fill="white"/><rect x="26" y="32" width="4" height="4" fill="white"/><rect x="32" y="32" width="4" height="4" fill="white"/><rect x="38" y="38" width="4" height="4" fill="white"/><rect x="44" y="32" width="4" height="4" fill="white"/><rect x="44" y="38" width="4" height="4" fill="white"/><rect x="50" y="32" width="4" height="4" fill="white"/><rect x="32" y="44" width="4" height="4" fill="white"/><rect x="38" y="44" width="4" height="4" fill="white"/><rect x="44" y="50" width="8" height="4" fill="#00A86B"/><rect x="26" y="44" width="4" height="8" fill="#00A86B"/></svg>
+        </div>
+        <div style="font-size:13px; font-weight:600; color:#bfdbfe;">Client scanne</div>
+      </div>
+
+      <!-- Flèches -->
+      <div style="display:flex; align-items:center; gap:6px; flex-direction:column;">
+        <div style="display:flex; gap:6px;">
+          <div style="background:var(--green); color:#fff; padding:6px 14px; border-radius:99px; font-size:12px; font-weight:700;">60s</div>
+        </div>
+        <div style="font-size:22px; color:rgba(255,255,255,0.3);">→</div>
+      </div>
+
+      <!-- Résultat -->
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <div style="background:rgba(255,255,255,0.08); border-radius:12px; padding:12px 16px; display:flex; align-items:center; gap:10px;">
+          <span style="font-size:18px;">📊</span>
+          <div>
+            <div style="font-size:13px; font-weight:700; color:#fff;">Simulation complète</div>
+            <div style="font-size:11px; color:#93c5fd;">Budget + prime Wallonie calculés</div>
+          </div>
+        </div>
+        <div style="background:rgba(255,255,255,0.08); border-radius:12px; padding:12px 16px; display:flex; align-items:center; gap:10px;">
+          <span style="font-size:18px;">📨</span>
+          <div>
+            <div style="font-size:13px; font-weight:700; color:#fff;">Lead qualifié reçu</div>
+            <div style="font-size:11px; color:#93c5fd;">Nom, tel, surface, commune, revenus</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ COMPARAISON ══════════════ -->
+<section style="background:#f8fafc; padding:80px 0; border-top:1px solid #e8edf5;">
+  <div class="wrap">
+    <h2 style="text-align:center; font-size:clamp(22px,4vw,32px); font-weight:800; letter-spacing:-0.5px; margin:0 0 48px;">Arrêtez de perdre 3h par jour au téléphone</h2>
+
+    <div class="grid-2" style="max-width:900px; margin:0 auto;">
+      <div style="position:relative; background:#fff; border-radius:20px; border:2px solid #fee2e2; padding:28px;">
+        <div style="position:absolute; top:-13px; left:20px; background:#ef4444; color:#fff; font-size:11px; font-weight:700; padding:3px 12px; border-radius:99px;">SANS SIMULACONSTRUCT</div>
+        <h3 style="font-size:18px; font-weight:800; color:#b91c1c; margin:10px 0 20px;">Aujourd'hui</h3>
+        <ul class="compare-list">
+          <li><span class="ico" style="color:#ef4444;">✕</span>12 appels/semaine pour 2 devis sérieux</li>
+          <li><span class="ico" style="color:#ef4444;">✕</span>Calcul primes Wallonie à la main — erreurs fréquentes</li>
+          <li><span class="ico" style="color:#ef4444;">✕</span>Déplacements pour maisons non éligibles</li>
+          <li><span class="ico" style="color:#ef4444;">✕</span>Clients qui « réfléchissent » après 2h de chiffrage</li>
+          <li><span class="ico" style="color:#ef4444;">✕</span>Pas de trace si le client ne rappelle pas</li>
+        </ul>
+      </div>
+
+      <div style="position:relative; background:#fff; border-radius:20px; border:2px solid rgba(0,168,107,0.35); padding:28px; box-shadow:0 12px 40px rgba(0,168,107,0.1);">
+        <div style="position:absolute; top:-13px; left:20px; background:var(--green); color:#fff; font-size:11px; font-weight:700; padding:3px 12px; border-radius:99px;">AVEC SIMULACONSTRUCT</div>
+        <h3 style="font-size:18px; font-weight:800; color:var(--navy); margin:10px 0 20px;">Demain</h3>
+        <ul class="compare-list">
+          <li><span class="ico" style="color:var(--green);">✓</span><span><strong>Seuls les qualifiés</strong> vous contactent (surface + commune + budget)</span></li>
+          <li><span class="ico" style="color:var(--green);">✓</span>Primes 2026 R1 à R5 calculées automatiquement</li>
+          <li><span class="ico" style="color:var(--green);">✓</span>Simulation envoyée par email = client déjà chaud</li>
+          <li><span class="ico" style="color:var(--green);">✓</span>Vous arrivez avec le montant prime en poche</li>
+          <li><span class="ico" style="color:var(--green);">✓</span>Tous les contacts capturés, même à 22h</li>
+        </ul>
+        <div style="margin-top:20px; padding:12px 16px; background:rgba(0,168,107,0.07); border-radius:12px; font-size:14px;">
+          <strong style="color:var(--green);">Résultat moyen :</strong> temps de devis ÷ 4, taux de signature × 2.3
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ 3 ÉTAPES ══════════════ -->
+<section id="comment" style="background:var(--navy); color:#fff; padding:80px 0; position:relative; overflow:hidden;">
+  <div style="position:absolute; inset:0; opacity:0.03; background-image:radial-gradient(white 1px, transparent 1px); background-size:24px 24px; pointer-events:none;"></div>
+  <div class="wrap" style="position:relative;">
+    <div style="text-align:center; margin-bottom:56px;">
+      <h2 style="font-size:clamp(22px,4vw,36px); font-weight:800; letter-spacing:-0.5px; margin:0 0 12px;">Mise en place en 3 étapes</h2>
+      <p style="color:#bfdbfe; font-size:16px; margin:0;">Pas de technique. On s'occupe de tout.</p>
+    </div>
+
+    <div class="grid-3" style="max-width:900px; margin:0 auto;">
+      <div>
+        <div class="step-num" style="background:var(--green); color:#fff; margin-bottom:20px;">1</div>
+        <h3 style="font-size:19px; font-weight:700; margin:0 0 10px;">On personnalise</h3>
+        <p style="color:#bfdbfe; font-size:15px; line-height:1.65; margin:0;">Votre logo, vos couleurs, vos prix au m², vos zones (Namur, Liège, Hainaut…). Fichier livré en 48h.</p>
+      </div>
+      <div>
+        <div class="step-num" style="background:var(--royal); color:#fff; margin-bottom:20px;">2</div>
+        <h3 style="font-size:19px; font-weight:700; margin:0 0 10px;">Vous collez votre QR</h3>
+        <p style="color:#bfdbfe; font-size:15px; line-height:1.65; margin:0;">Camionnette, bâche chantier, flyer, Facebook, Google Business. Le client scanne, calcule sa prime en 60s.</p>
+      </div>
+      <div>
+        <div class="step-num" style="background:#fff; color:var(--navy); margin-bottom:20px;">3</div>
+        <h3 style="font-size:19px; font-weight:700; margin:0 0 10px;">Vous recevez</h3>
+        <p style="color:#bfdbfe; font-size:15px; line-height:1.65; margin:0;">Nom, téléphone, surface, commune, catégorie revenus, prime estimée. Direct dans votre email & WhatsApp.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ TARIFS ══════════════ -->
+<section id="tarifs" style="padding:80px 0; background:#f8fafc; border-top:1px solid #e8edf5;">
+  <div class="wrap">
+
+    <div style="text-align:center; margin-bottom:16px;">
+      <div class="badge" style="background:rgba(10,35,66,0.06); color:var(--navy); margin-bottom:16px;">
+        Tarifs transparents · Sans surprise
+      </div>
+      <h2 style="font-size:clamp(24px,4vw,38px); font-weight:900; letter-spacing:-0.5px; margin:0 0 12px;">Choisissez votre formule</h2>
+      <p style="color:#6b7280; font-size:16px; max-width:500px; margin:0 auto; line-height:1.65;">
+        Outil spécialisé toiture, primes Wallonie 2026 intégrées, leads qualifiés.<br>Pas de concurrent direct sur ce marché.
+      </p>
+    </div>
+
+    <!-- Comparatif marché -->
+    <div style="max-width:860px; margin:28px auto 48px; background:#fff; border:1px solid #e2e8f0; border-radius:16px; padding:16px 24px; display:flex; flex-wrap:wrap; align-items:center; gap:12px; justify-content:space-between;">
+      <div style="font-size:13px; color:#6b7280; font-style:italic;">
+        💡 <strong style="color:var(--navy);">Contexte marché :</strong> logiciels BTP SaaS généralistes facturent 39–79€/mois · licences one-shot à partir de 500€ · aucun outil QR lead qualifié toiture+primes Wallonie n'existe ailleurs
+      </div>
+      <div style="display:flex; align-items:center; gap:6px; background:#ecfdf5; padding:6px 14px; border-radius:99px; border:1px solid #86efac; flex-shrink:0;">
+        <span style="color:#059669; font-size:13px; font-weight:700;">✓ Vous économisez vs concurrent généraliste</span>
+      </div>
+    </div>
+
+    <!-- Cards tarifs -->
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:24px; max-width:860px; margin:0 auto;">
+
+      <!-- ABONNEMENT -->
+      <div style="background:#fff; border-radius:24px; border:1.5px solid #e2e8f0; padding:36px 32px; position:relative; display:flex; flex-direction:column;">
+        <div style="margin-bottom:24px;">
+          <div style="font-size:12px; font-weight:700; color:#6b7280; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px;">Abonnement mensuel</div>
+          <div style="display:flex; align-items:baseline; gap:4px; margin-bottom:6px;">
+            <span style="font-size:48px; font-weight:900; color:var(--navy); line-height:1;">39</span>
+            <span style="font-size:20px; font-weight:700; color:var(--navy);">€</span>
+            <span style="font-size:15px; color:#6b7280;">/mois</span>
+          </div>
+          <div style="font-size:13px; color:#6b7280;">Sans engagement · Résiliable à tout moment</div>
+        </div>
+
+        <ul style="list-style:none; margin:0 0 28px; padding:0; display:flex; flex-direction:column; gap:12px; flex:1;">
+          <li style="display:flex; gap:10px; font-size:15px; color:#374151;">
+            <span style="color:var(--green); font-weight:700; flex-shrink:0;">✓</span>
+            Simulateur QR à vos couleurs + logo
+          </li>
+          <li style="display:flex; gap:10px; font-size:15px; color:#374151;">
+            <span style="color:var(--green); font-weight:700; flex-shrink:0;">✓</span>
+            Primes Wallonie 2026 mises à jour automatiquement
+          </li>
+          <li style="display:flex; gap:10px; font-size:15px; color:#374151;">
+            <span style="color:var(--green); font-weight:700; flex-shrink:0;">✓</span>
+            Hébergement inclus + nom de domaine
+          </li>
+          <li style="display:flex; gap:10px; font-size:15px; color:#374151;">
+            <span style="color:var(--green); font-weight:700; flex-shrink:0;">✓</span>
+            Leads illimités par email & WhatsApp
+          </li>
+          <li style="display:flex; gap:10px; font-size:15px; color:#374151;">
+            <span style="color:var(--green); font-weight:700; flex-shrink:0;">✓</span>
+            Mises à jour barèmes incluses
+          </li>
+          <li style="display:flex; gap:10px; font-size:15px; color:#374151;">
+            <span style="color:var(--green); font-weight:700; flex-shrink:0;">✓</span>
+            Support WhatsApp 5j/7
+          </li>
+          <li style="display:flex; gap:10px; font-size:15px; color:#9ca3af;">
+            <span style="color:#d1d5db; flex-shrink:0;">–</span>
+            Fichier non fourni (hébergé chez nous)
+          </li>
+        </ul>
+
+        <a href="mailto:receprte101@gmail.com?subject=Demande%20de%20renseignements%20SimulaConstruct&body=Bonjour,%0D%0A%0D%0AJe%20souhaite%20obtenir%20plus%20d%27informations%20sur%20SimulaConstruct%20(personnalisation%2C%20tarifs%2C%20d%C3%A9lais).%0D%0A%0D%0AMon%20activit%C3%A9%20%3A%20%0D%0AZone%20g%C3%A9ographique%20%3A%20%0D%0AT%C3%A9l%C3%A9phone%20%3A%20%0D%0A%0D%0AMerci." class="btn btn-outline btn-lg" style="width:100%; justify-content:center; font-size:15px;">
+          Démarrer l'abonnement →
+        </a>
+        <p style="text-align:center; font-size:12px; color:#9ca3af; margin:10px 0 0;">1er mois offert · Pas de carte requise</p>
+      </div>
+
+      <!-- VENTE UNIQUE — recommandé -->
+      <div style="background:#fff; border-radius:24px; border:2.5px solid var(--green); padding:36px 32px; position:relative; display:flex; flex-direction:column; box-shadow:0 16px 48px rgba(0,168,107,0.13);">
+
+        <!-- Badge populaire -->
+        <div style="position:absolute; top:-14px; left:50%; transform:translateX(-50%); background:var(--green); color:#fff; font-size:12px; font-weight:800; padding:4px 18px; border-radius:99px; white-space:nowrap; letter-spacing:0.5px;">
+          ⭐ RECOMMANDÉ — PROPRIÉTAIRE
+        </div>
+
+        <div style="margin-bottom:24px;">
+          <div style="font-size:12px; font-weight:700; color:var(--green); text-transform:uppercase; letter-spacing:1px; margin-bottom:10px;">Achat unique — fichier à vous</div>
+          <div style="display:flex; align-items:baseline; gap:4px; margin-bottom:6px;">
+            <span style="font-size:48px; font-weight:900; color:var(--navy); line-height:1;">497</span>
+            <span style="font-size:20px; font-weight:700; color:var(--navy);">€</span>
+            <span style="font-size:15px; color:#6b7280;">une fois</span>
+          </div>
+          <div style="font-size:13px; color:#6b7280;">Payé en <strong style="color:var(--navy);">13 mois</strong> vs abonnement · Rentable dès le 1er lead</div>
+        </div>
+
+        <ul style="list-style:none; margin:0 0 28px; padding:0; display:flex; flex-direction:column; gap:12px; flex:1;">
+          <li style="display:flex; gap:10px; font-size:15px; color:#374151;">
+            <span style="color:var(--green); font-weight:700; flex-shrink:0;">✓</span>
+            <span><strong>Fichier HTML vous appartient</strong> — à héberger où vous voulez</span>
+          </li>
+          <li style="display:flex; gap:10px; font-size:15px; color:#374151;">
+            <span style="color:var(--green); font-weight:700; flex-shrink:0;">✓</span>
+            Simulateur QR à vos couleurs + logo + prix
+          </li>
+          <li style="display:flex; gap:10px; font-size:15px; color:#374151;">
+            <span style="color:var(--green); font-weight:700; flex-shrink:0;">✓</span>
+            Primes Wallonie 2026 intégrées (R1–R5)
+          </li>
+          <li style="display:flex; gap:10px; font-size:15px; color:#374151;">
+            <span style="color:var(--green); font-weight:700; flex-shrink:0;">✓</span>
+            <strong>Hébergement inclus 1 an</strong> + sous-domaine personnalisé
+          </li>
+          <li style="display:flex; gap:10px; font-size:15px; color:#374151;">
+            <span style="color:var(--green); font-weight:700; flex-shrink:0;">✓</span>
+            QR code imprimable haute résolution fourni
+          </li>
+          <li style="display:flex; gap:10px; font-size:15px; color:#374151;">
+            <span style="color:var(--green); font-weight:700; flex-shrink:0;">✓</span>
+            Leads illimités à vie · 0€ de commission
+          </li>
+          <li style="display:flex; gap:10px; font-size:15px; color:#374151;">
+            <span style="color:var(--green); font-weight:700; flex-shrink:0;">✓</span>
+            Support WhatsApp 3 mois inclus
+          </li>
+          <li style="display:flex; gap:10px; font-size:15px; color:#374151;">
+            <span style="color:var(--green); font-weight:700; flex-shrink:0;">✓</span>
+            Livraison en 48h · Revente interdite
+          </li>
+        </ul>
+
+        <a href="mailto:receprte101@gmail.com?subject=Demande%20de%20renseignements%20SimulaConstruct&body=Bonjour,%0D%0A%0D%0AJe%20souhaite%20obtenir%20plus%20d%27informations%20sur%20SimulaConstruct%20(personnalisation%2C%20tarifs%2C%20d%C3%A9lais).%0D%0A%0D%0AMon%20activit%C3%A9%20%3A%20%0D%0AZone%20g%C3%A9ographique%20%3A%20%0D%0AT%C3%A9l%C3%A9phone%20%3A%20%0D%0A%0D%0AMerci." class="btn btn-green btn-lg" style="width:100%; justify-content:center; font-size:15px;">
+          Obtenir ma version unique →
+        </a>
+        <p style="text-align:center; font-size:12px; color:#6b7280; margin:10px 0 0;">Paiement sécurisé · Réponse sous 2h</p>
+      </div>
+
+    </div>
+
+    <!-- Tableau comparatif -->
+    <div style="max-width:860px; margin:32px auto 0; background:#fff; border-radius:16px; border:1px solid #e2e8f0; overflow:hidden;">
+      <div style="padding:16px 24px; background:var(--navy); color:#fff; font-size:14px; font-weight:700;">Comparatif détaillé</div>
+      <div style="overflow-x:auto;">
+        <table style="width:100%; border-collapse:collapse; font-size:14px;">
+          <thead>
+            <tr style="background:#f8fafc;">
+              <th style="padding:12px 16px; text-align:left; color:#6b7280; font-weight:600; border-bottom:1px solid #e2e8f0;">Fonctionnalité</th>
+              <th style="padding:12px 16px; text-align:center; color:var(--navy); font-weight:700; border-bottom:1px solid #e2e8f0;">Abonnement 39€/mois</th>
+              <th style="padding:12px 16px; text-align:center; color:var(--green); font-weight:700; border-bottom:1px solid #e2e8f0;">Achat unique 497€</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid #f0f4f8;"><td style="padding:11px 16px; color:#374151;">Simulateur personnalisé</td><td style="text-align:center; color:var(--green); font-weight:700;">✓</td><td style="text-align:center; color:var(--green); font-weight:700;">✓</td></tr>
+            <tr style="border-bottom:1px solid #f0f4f8; background:#fafafa;"><td style="padding:11px 16px; color:#374151;">Hébergement inclus</td><td style="text-align:center; color:var(--green); font-weight:700;">✓ continu</td><td style="text-align:center; color:var(--green); font-weight:700;">✓ 1 an</td></tr>
+            <tr style="border-bottom:1px solid #f0f4f8;"><td style="padding:11px 16px; color:#374151;">Mises à jour barèmes auto</td><td style="text-align:center; color:var(--green); font-weight:700;">✓</td><td style="text-align:center; color:#9ca3af;">Sur demande</td></tr>
+            <tr style="border-bottom:1px solid #f0f4f8; background:#fafafa;"><td style="padding:11px 16px; color:#374151;">Fichier vous appartient</td><td style="text-align:center; color:#ef4444; font-weight:700;">✕</td><td style="text-align:center; color:var(--green); font-weight:700;">✓</td></tr>
+            <tr style="border-bottom:1px solid #f0f4f8;"><td style="padding:11px 16px; color:#374151;">Leads illimités</td><td style="text-align:center; color:var(--green); font-weight:700;">✓</td><td style="text-align:center; color:var(--green); font-weight:700;">✓ à vie</td></tr>
+            <tr style="border-bottom:1px solid #f0f4f8; background:#fafafa;"><td style="padding:11px 16px; color:#374151;">QR code HD fourni</td><td style="text-align:center; color:var(--green); font-weight:700;">✓</td><td style="text-align:center; color:var(--green); font-weight:700;">✓</td></tr>
+            <tr style="background:#fafafa;"><td style="padding:11px 16px; color:#374151;">Coût total sur 3 ans</td><td style="text-align:center; color:#374151; font-weight:700;">1.404€</td><td style="text-align:center; color:var(--green); font-weight:700;">497€ + héberg.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <p style="text-align:center; margin-top:24px; font-size:13px; color:#9ca3af;">
+      Tous les prix sont HTVA · TVA belge applicable selon votre statut · Hébergement année 2 : 99€/an
+    </p>
+  </div>
+</section>
+
+
+<!-- ══════════════ TARIFS ══════════════ -->
+
+
+<!-- ══════════════ CTA FINAL ══════════════ -->
+<section id="contact" style="padding:80px 0 96px;">
+  <div class="wrap">
+    <div style="max-width:680px; margin:0 auto; text-align:center; background:linear-gradient(180deg,#fff 0%,#f8fafc 100%); border:1.5px solid #e2e8f0; border-radius:28px; padding:56px 32px; box-shadow:0 24px 64px -24px rgba(10,35,66,0.16);">
+
+      <!-- Logo dans CTA -->
+      <div style="display:flex; justify-content:center; margin-bottom:20px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <svg width="36" height="36" viewBox="0 0 40 40" fill="none">
+            <rect width="40" height="40" rx="10" fill="#0A2342"/>
+            <polygon points="20,5 36,19 4,19" fill="#00A86B"/>
+            <rect x="7" y="19" width="26" height="17" rx="1" fill="white" opacity="0.93"/>
+          </svg>
+          <span style="font-size:18px; font-weight:900; color:var(--navy);">Simula<span style="color:var(--royal);">Construct</span></span>
+        </div>
+      </div>
+
+      <div class="badge" style="background:rgba(0,168,107,0.1); color:var(--green-dark); margin-bottom:20px;">
+        <span class="pulse-dot" style="width:7px;height:7px;"></span>
+        DERNIÈRES PLACES DÉCEMBRE
+      </div>
+
+      <h2 style="font-size:clamp(24px,4vw,38px); font-weight:900; letter-spacing:-0.5px; margin:0 0 16px; line-height:1.1;">Je veux ma version personnalisée</h2>
+
+      <p style="font-size:16px; color:#4b5563; line-height:1.75; max-width:500px; margin:0 auto 36px;">
+        Simulateur à votre nom, vos couleurs, vos prix. Pas d'abonnement mensuel. Vous êtes propriétaire du fichier. Hébergement inclus 1 an.
+      </p>
+
+      <div style="display:flex; flex-wrap:wrap; gap:12px; justify-content:center; margin-bottom:16px;">
+        <a href="mailto:receprte101@gmail.com?subject=Demande%20de%20renseignements%20SimulaConstruct&body=Bonjour,%0D%0A%0D%0AJe%20souhaite%20obtenir%20plus%20d%27informations%20sur%20SimulaConstruct%20(personnalisation%2C%20tarifs%2C%20d%C3%A9lais).%0D%0A%0D%0AMon%20activit%C3%A9%20%3A%20%0D%0AZone%20g%C3%A9ographique%20%3A%20%0D%0AT%C3%A9l%C3%A9phone%20%3A%20%0D%0A%0D%0AMerci."
+           class="btn btn-green btn-lg">
+          Obtenir ma version personnalisée →
+        </a>
+        <a href="#videos" class="btn btn-outline btn-lg">Revoir les vidéos</a>
+      </div>
+
+      <p style="font-size:12px; color:#9ca3af; margin:0 0 28px;">Réponse sous 2h en journée · Démo gratuite sans engagement</p>
+
+      <div style="padding-top:20px; border-top:1px solid #e5e7eb; display:flex; flex-wrap:wrap; justify-content:center; gap:16px; font-size:14px; color:#4b5563;">
+        <span>✓ Primes Wallonie 2026</span>
+        <span>✓ Conforme SPW</span>
+        <span>✓ RGPD</span>
+        <span>✓ Support WhatsApp</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ FOOTER ══════════════ -->
+<footer style="border-top:1px solid #f0f4f8; padding:28px 20px;">
+  <div class="wrap" style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:16px; font-size:13px; color:#9ca3af;">
+    <div style="display:flex; align-items:center; gap:8px;">
+      <svg width="24" height="24" viewBox="0 0 40 40" fill="none">
+        <rect width="40" height="40" rx="10" fill="#0A2342"/>
+        <polygon points="20,5 36,19 4,19" fill="#00A86B"/>
+        <rect x="7" y="19" width="26" height="17" rx="1" fill="white" opacity="0.93"/>
+      </svg>
+      <span>© 2026 SimulaConstruct — Conçu pour artisans wallons</span>
+    </div>
+    <div style="display:flex; gap:20px;">
+      <a href="#" style="color:#9ca3af; text-decoration:none;">Mentions légales</a>
+      <a href="#" style="color:#9ca3af; text-decoration:none;">Confidentialité</a>
+    </div>
+  </div>
+</footer>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const video = document.getElementById('video-presentation');
+  const btn = document.getElementById('btn-sound');
+  if (!video || !btn) return;
+  
+  // Tentative autoplay muet
+  video.muted = true;
+  video.play().catch(()=>{});
+  
+  function activerSon() {
+    video.muted = false;
+    video.volume = 1;
+    video.play().catch(()=>{});
+    btn.style.display = 'none';
+  }
+  
+  btn.addEventListener('click', activerSon);
+  
+  // Option : activer au premier clic sur la vidéo
+  video.addEventListener('click', function() {
+    if (video.muted) activerSon();
+  });
+});
+</script>
+
+</body>
+</html>
